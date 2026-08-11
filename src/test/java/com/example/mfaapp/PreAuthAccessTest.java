@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.Map;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -80,10 +82,30 @@ class PreAuthAccessTest extends IntegrationTestBase {
         mockMvc.perform(get("/app.js")).andExpect(status().isOk());
         mockMvc.perform(get("/vendor/vue.global.prod.js")).andExpect(status().isOk());
         mockMvc.perform(get("/components/LoginView.js")).andExpect(status().isOk());
-        // Deep link: forwarded to the shell rather than 401'd, so Vue can route it.
-        mockMvc.perform(get("/modules/sec-basics")).andExpect(status().isOk());
-        // A mistyped API path stays a 404 instead of quietly returning HTML.
-        mockMvc.perform(get("/api/does-not-exist")).andExpect(status().isNotFound());
+        // Deep link: forwarded to the shell rather than 401'd, so Vue can route it client-side.
+        mockMvc.perform(get("/modules/sec-basics"))
+                .andExpect(status().isOk())
+                .andExpect(forwardedUrl("/index.html"));
+
+        // An unknown path under /api never falls through to the SPA shell. Anonymously it is
+        // refused by the filter chain before routing, which also avoids advertising which API
+        // paths exist; authenticated, it is a plain 404.
+        mockMvc.perform(get("/api/does-not-exist"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("unauthorized"));
+    }
+
+    @Test
+    @WithMockUser(username = USERNAME, roles = "USER")
+    @DisplayName("An unknown API path 404s for an authenticated caller rather than serving the shell")
+    void unknownApiPathIsNotTheShell() throws Exception {
+        newUser(USERNAME, Role.USER);
+
+        mockMvc.perform(get("/api/does-not-exist"))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> org.assertj.core.api.Assertions
+                        .assertThat(result.getResponse().getContentAsString())
+                        .doesNotContain("<div id=\"app\">"));
     }
 
     @Test
