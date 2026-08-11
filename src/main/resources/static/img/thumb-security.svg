@@ -1,0 +1,12 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180" role="img" aria-label="security module illustration">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="180" fill="url(#g)"/>
+  <g transform="translate(128 50)" fill="none" stroke="#ffffff" stroke-opacity="0.85" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 6 54 15v19c0 14-9 22-22 26-13-4-22-12-22-26V15z"/>
+  </g>
+</svg>

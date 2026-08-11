@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mfa-learning-app",
+      "runtimeExecutable": "java",
+      "runtimeArgs": ["-jar", "target/mfa-learning-app-1.0.0.jar"],
+      "port": 8080
+    }
+  ]
+}

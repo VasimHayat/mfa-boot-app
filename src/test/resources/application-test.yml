@@ -1,0 +1,38 @@
+# In-memory schema per test run, and deliberately weak BCrypt costs.
+# The strengths here are a test-speed choice only; production values live in application.yml.
+spring:
+  datasource:
+    url: jdbc:h2:mem:mfa-learning-test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        # Needed by the catalog test that asserts a bounded statement count.
+        generate_statistics: true
+
+app:
+  mfa:
+    issuer: "MFA Learning Test"
+    window: 1
+    secret-encryption-key: "qMQ99Rz0SXKFfR1QL22WVb4DIbECOPQBxsFYx21W4qI="
+    max-attempts: 5
+    attempt-window: 15m
+    recovery-code-count: 10
+    recovery-code-bcrypt-strength: 4
+
+  security:
+    bcrypt-strength: 4
+    hsts-enabled: false
+
+logging:
+  level:
+    root: warn
+    com.example.mfaapp: info

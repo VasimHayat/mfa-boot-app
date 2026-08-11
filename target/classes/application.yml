@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: mfa-learning-app
+
+  # Dev default: H2 in file mode, so enrolled MFA secrets survive a restart.
+  # Swap to PostgreSQL by running with --spring.profiles.active=prod (see application-prod.yml).
+  datasource:
+    url: jdbc:h2:file:./data/mfa-learning;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  h2:
+    console:
+      enabled: false
+
+server:
+  port: 8080
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        name: JSESSIONID
+        http-only: true
+        same-site: lax
+        # Overridden to true in the prod profile, where the app is served over HTTPS.
+        secure: false
+
+app:
+  mfa:
+    # Shown as the account issuer in Google Authenticator, and used in the otpauth:// URI.
+    issuer: "MFA Learning"
+    # Tolerated clock drift, in 30-second TOTP steps, either side of now.
+    window: 1
+    # Base64 AES key (32 bytes here) used to encrypt TOTP secrets at rest.
+    # Dev-only value: override with APP_MFA_SECRET_ENCRYPTION_KEY outside development.
+    secret-encryption-key: "gQhxBE0/8X1k04u5ImfyVxSSnGzRXhUwwd3108ChdAY="
+    # Failed /api/mfa/verify attempts allowed per user before the challenge locks.
+    max-attempts: 5
+    # Rolling window for max-attempts, and how long the lock lasts once tripped.
+    attempt-window: 15m
+    recovery-code-count: 10
+    recovery-code-bcrypt-strength: 10
+
+  security:
+    bcrypt-strength: 12
+    hsts-enabled: false
+
+logging:
+  level:
+    root: info
+    com.example.mfaapp: info

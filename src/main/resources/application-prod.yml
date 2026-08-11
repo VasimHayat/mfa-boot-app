@@ -1,0 +1,46 @@
+# PostgreSQL + hardened cookies. Every secret comes from the environment.
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/mfa_learning}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME:mfa_learning}
+    password: ${DATABASE_PASSWORD:}
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    # Never let Hibernate mutate a production schema; run migrations deliberately instead.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+server:
+  # Behind a TLS-terminating proxy, so trust the forwarded headers for scheme detection.
+  forward-headers-strategy: native
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: true
+
+app:
+  mfa:
+    issuer: ${APP_MFA_ISSUER:MFA Learning}
+    window: 1
+    # Required. Base64-encoded 32-byte AES key; the app refuses to start without it.
+    secret-encryption-key: ${APP_MFA_SECRET_ENCRYPTION_KEY}
+    max-attempts: 5
+    attempt-window: 15m
+    recovery-code-count: 10
+    recovery-code-bcrypt-strength: 12
+
+  security:
+    bcrypt-strength: 12
+    # Enables HSTS, and marks the CSRF cookie Secure.
+    hsts-enabled: true

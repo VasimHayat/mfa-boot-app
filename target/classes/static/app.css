@@ -1,0 +1,286 @@
+/* App-specific styles. Anything the PrimeVue theme or PrimeFlex already provides is left alone. */
+
+:root {
+    --app-shell-max: 1180px;
+}
+
+body {
+    margin: 0;
+    background: var(--surface-ground);
+    color: var(--text-color);
+    font-family: var(--font-family);
+}
+
+.boot-splash {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    color: var(--text-color-secondary);
+}
+
+.app-shell {
+    max-width: var(--app-shell-max);
+    margin: 0 auto;
+    padding: 1.25rem 1rem 4rem;
+}
+
+.centred-pane {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1.5rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 34rem;
+}
+
+/* A visible focus ring everywhere, including on elements the theme leaves bare. */
+:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ---- Module cards ---------------------------------------------------------------------- */
+
+.module-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--border-radius);
+    background: var(--surface-card);
+    overflow: hidden;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.module-card:hover,
+.module-card:focus-visible {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+    transform: translateY(-2px);
+}
+
+.module-card__thumb {
+    position: relative;
+    aspect-ratio: 16 / 8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.module-card__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Category-coloured gradient stands in whenever thumbnailUrl is null, so a card is never
+   rendered with a broken image. */
+.module-card__thumb--placeholder .pi {
+    font-size: 2.25rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.thumb-SECURITY {
+    background: linear-gradient(135deg, #1e3a8a, #0ea5e9);
+}
+
+.thumb-ENGINEERING {
+    background: linear-gradient(135deg, #3730a3, #6366f1);
+}
+
+.thumb-COMPLIANCE {
+    background: linear-gradient(135deg, #065f46, #10b981);
+}
+
+.thumb-ONBOARDING {
+    background: linear-gradient(135deg, #7c2d12, #f59e0b);
+}
+
+.thumb-PRODUCT {
+    background: linear-gradient(135deg, #831843, #ec4899);
+}
+
+.module-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem;
+    flex: 1 1 auto;
+}
+
+.module-card__title {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.35;
+}
+
+/* Exactly two lines of summary, so every card in a row is the same height. */
+.clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+    min-height: 2.6em;
+}
+
+.module-card__footer {
+    margin-top: auto;
+    padding-top: 0.5rem;
+}
+
+.module-row {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--surface-border);
+    align-items: flex-start;
+}
+
+.module-row:last-child {
+    border-bottom: none;
+}
+
+.module-row__thumb {
+    flex: 0 0 9rem;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.module-row__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.progress-caption {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+}
+
+/* ---- Filters, states ------------------------------------------------------------------- */
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.filter-bar > * {
+    flex: 0 1 auto;
+}
+
+.search-field {
+    flex: 1 1 16rem;
+    min-width: 12rem;
+}
+
+.state-pane {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+}
+
+.state-pane .pi {
+    font-size: 2.5rem;
+    opacity: 0.6;
+}
+
+.skeleton-card {
+    border: 1px solid var(--surface-border);
+    border-radius: var(--border-radius);
+    background: var(--surface-card);
+    overflow: hidden;
+}
+
+.skeleton-card__body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+/* Screen-reader-only, used for the aria-live results announcement. */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.secret-text {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: 0.08em;
+}
+
+.qr-frame {
+    display: inline-flex;
+    padding: 0.75rem;
+    background: #ffffff;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--surface-border);
+}
+
+.setup-steps {
+    margin: 0;
+    padding-left: 1.25rem;
+    line-height: 1.7;
+}
+
+.lesson-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.lesson-row__title {
+    flex: 1 1 auto;
+    text-align: left;
+}
+
+.lesson-done {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+@media (max-width: 640px) {
+    .module-row {
+        flex-direction: column;
+    }
+
+    .module-row__thumb {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+}

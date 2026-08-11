@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MFA Learning</title>
+    <link rel="icon" href="/img/thumb-security.svg">
+
+    <!-- Everything below is served from this app. No CDN, so the page works offline. -->
+    <link rel="stylesheet" href="/vendor/primeicons.css">
+    <link rel="stylesheet" href="/vendor/primeflex.min.css">
+    <!-- Swapped between theme-light.css and theme-dark.css by the theme toggle. -->
+    <link id="prime-theme" rel="stylesheet" href="/vendor/theme-light.css">
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div id="app">
+    <!-- Shown until Vue mounts, then replaced. -->
+    <div class="boot-splash" role="status" aria-live="polite">Loading&hellip;</div>
+</div>
+
+<script src="/vendor/vue.global.prod.js"></script>
+<script src="/vendor/primevue.min.js"></script>
+
+<script src="/components/ThemeToggle.js"></script>
+<script src="/components/LoginView.js"></script>
+<script src="/components/MfaSetupView.js"></script>
+<script src="/components/MfaChallengeView.js"></script>
+<script src="/components/ModulesView.js"></script>
+<script src="/components/ModuleDetailView.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
