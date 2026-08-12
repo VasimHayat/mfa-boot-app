@@ -1,5 +1,7 @@
 package com.example.mfaapp.support;
 
+import com.example.mfaapp.config.StorageProperties;
+import com.example.mfaapp.service.SeaweedFsClient;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -22,5 +24,15 @@ public class TestClockConfig {
     @Primary
     public Clock clock() {
         return new MutableClock(START, ZoneOffset.UTC);
+    }
+
+    /**
+     * Keeps the suite runnable without Docker. {@code SeaweedFsClientIT} covers the real filer and
+     * skips itself when one is not listening.
+     */
+    @Bean
+    @Primary
+    public SeaweedFsClient seaweedFsClient(StorageProperties storageProperties) {
+        return new InMemoryObjectStore(storageProperties);
     }
 }

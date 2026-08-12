@@ -1,8 +1,11 @@
 F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\AuthMfaFlowTest.java
 F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\CatalogQueryBudgetTest.java
 F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\ContextLoadsTest.java
+F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\DocumentUploadTest.java
 F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\LearningCatalogTest.java
 F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\PreAuthAccessTest.java
+F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\SeaweedFsClientIT.java
+F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\support\InMemoryObjectStore.java
 F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\support\IntegrationTestBase.java
 F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\support\MutableClock.java
 F:\Cluade\mfa-learning-app\src\test\java\com\example\mfaapp\support\TestClockConfig.java

@@ -32,6 +32,15 @@ app:
     bcrypt-strength: 4
     hsts-enabled: false
 
+  # Small limits so the quota and size tests can trip them with a couple of bytes.
+  # The object store is replaced by an in-memory stand-in, so filer-url is unused here.
+  storage:
+    filer-url: "http://localhost:8888"
+    base-path: "/mfa-learning/documents"
+    max-file-size: 1KB
+    max-files-per-user: 3
+    max-bytes-per-user: 4KB
+
 logging:
   level:
     root: warn

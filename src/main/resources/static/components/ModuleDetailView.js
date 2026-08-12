@@ -8,7 +8,7 @@ window.ModuleDetailView = {
         me: { type: Object, default: null },
         slug: { type: String, required: true }
     },
-    emits: ['back', 'logout', 'session-lost'],
+    emits: ['back', 'open-files', 'logout', 'session-lost'],
     data: function () {
         return {
             detail: null,
@@ -44,13 +44,22 @@ window.ModuleDetailView = {
         },
         menuItems: function () {
             var self = this;
-            return [{
-                label: 'Catalog',
-                icon: 'pi pi-th-large',
-                command: function () {
-                    self.$emit('back');
+            return [
+                {
+                    label: 'Catalog',
+                    icon: 'pi pi-th-large',
+                    command: function () {
+                        self.$emit('back');
+                    }
+                },
+                {
+                    label: 'My files',
+                    icon: 'pi pi-folder',
+                    command: function () {
+                        self.$emit('open-files');
+                    }
                 }
-            }];
+            ];
         }
     },
     watch: {

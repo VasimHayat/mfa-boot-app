@@ -9,10 +9,15 @@ runnable jar.
 ## Requirements
 
 - JDK 21
+- Docker, for SeaweedFS — only needed if you want file uploads. Everything else runs without it.
 - No Node.js. The frontend is plain ES5-compatible JavaScript served as static files; Vue and
   PrimeVue are vendored under `src/main/resources/static/vendor/`.
 
 ## Run
+
+```bash
+docker compose up -d
+```
 
 ```bash
 ./mvnw spring-boot:run
@@ -108,6 +113,44 @@ one COUNT and one SELECT — regardless of page size**. `CatalogQueryBudgetTest`
 Hibernate statistics rather than trusting it, because a projection that resolved lesson counts or
 enrollments per row would pass every functional test and still fall over on a realistic page.
 
+## File uploads (SeaweedFS)
+
+Signed-in users get a **My files** area where they can upload documents, download them again and
+delete them. The bytes go to SeaweedFS; the database keeps only metadata — owner, filename, size,
+SHA-256 and the generated storage key.
+
+`docker-compose.yml` runs `weed server` with the master, one volume server and the filer in a single
+container. The app talks to the **filer** (`localhost:8888`), whose path-based HTTP API means the app
+addresses objects by a key it generates rather than tracking SeaweedFS file ids and doing the
+master-assign/volume-write dance itself.
+
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /api/me/documents` | multipart upload, field name `file` |
+| `GET /api/me/documents` | the caller's own files, paged |
+| `GET /api/me/documents/usage` | counts, bytes used and the configured limits |
+| `GET /api/me/documents/{id}/download` | the bytes, always as an attachment |
+| `DELETE /api/me/documents/{id}` | removes the row and the object |
+
+The rules that matter, each with a test:
+
+- **Ownership is part of the query**, not a check after loading, so another user's id reads as 404
+  rather than 403 — which also avoids confirming that the id exists.
+- **The content type is derived from the extension**, never taken from the browser's claim. A file
+  uploaded as `report.txt` with `Content-Type: text/html` is stored and served as `text/plain`.
+- **`.html` and `.svg` cannot be uploaded at all.** Served from this origin they would be stored XSS.
+  Downloads are additionally always `Content-Disposition: attachment`, with the global `nosniff`.
+- **Storage keys are generated** (`/mfa-learning/documents/u{userId}/{uuid}.{ext}`) and validated
+  against a strict pattern before every call, so a key can never escape its subtree. The user's
+  filename is only ever a download label and is sanitised of paths and control characters.
+- **Failed metadata writes delete the object**, so a half-finished upload cannot leak storage.
+- **The store being down is a 503**, not a 500 or a validation error, and the UI offers a retry.
+
+Limits live under `app.storage.*` — 10 MB per file, 100 files and 200 MB per user by default.
+
+If you would rather not run Docker, leave SeaweedFS down: the app starts fine and every other
+feature works. Uploads will report that file storage is unavailable.
+
 ## Frontend
 
 `src/main/resources/static/`, loaded by plain `<script>` tags in dependency order:
@@ -117,7 +160,7 @@ index.html          shell
 app.css             app-specific styles
 app.js              API client, history router, PrimeVue registration, view switch
 components/         ThemeToggle, LoginView, MfaSetupView, MfaChallengeView,
-                    ModulesView, ModuleDetailView
+                    ModulesView, ModuleDetailView, DocumentsView
 vendor/             Vue 3, PrimeVue 3 UMD, PrimeIcons, PrimeFlex, light + dark themes
 ```
 
@@ -141,9 +184,10 @@ Two notes for anyone editing the vendored assets:
 ./mvnw test
 ```
 
-32 integration tests against the real HTTP stack and a real H2 database, with a clock the tests
+44 integration tests against the real HTTP stack and a real H2 database, with a clock the tests
 control so the TOTP drift window, the replay guard and the lockout window are deterministic rather
-than timing-dependent.
+than timing-dependent. No Docker needed: the object store is replaced by an in-memory stand-in that
+keeps the same contract.
 
 | Suite | Covers |
 |-------|--------|
@@ -151,3 +195,12 @@ than timing-dependent.
 | `LearningCatalogTest` | filter composition, pagination metadata, role gating, enroll/complete |
 | `CatalogQueryBudgetTest` | the two-statement query budget |
 | `PreAuthAccessTest` | pre-auth and anonymous access refusal, CSRF, static shell, security headers |
+| `DocumentUploadTest` | upload/download/delete, ownership isolation, type and size rules, quotas |
+
+`SeaweedFsClientIT` covers the HTTP calls against a **real** filer and is the one test that proves
+the SeaweedFS integration itself. Surefire does not pick up `*IT` by default, so run it explicitly
+once the container is up — it skips itself if nothing is listening:
+
+```bash
+./mvnw test -Dtest=SeaweedFsClientIT -DfailIfNoSpecifiedTests=false
+```

@@ -109,6 +109,11 @@
                 return request('POST', url, body === undefined ? {} : body);
             });
         },
+        del: function (url) {
+            return Api.ensureCsrf().then(function () {
+                return request('DELETE', url);
+            });
+        },
         /** The first POST of a session may land before any GET has set the cookie. */
         ensureCsrf: function () {
             if (readCookie('XSRF-TOKEN')) {
@@ -304,6 +309,9 @@
         pv: pv,
         Api: Api,
         ApiError: ApiError,
+        // Exposed because the upload view sends its own XHR to get progress events, and still has
+        // to attach the CSRF token itself.
+        readCookie: readCookie,
         Router: Router,
         Format: Format,
         Theme: Theme,
@@ -340,6 +348,9 @@
                 if (this.authState === 'mfa-challenge') {
                     return 'mfa-challenge';
                 }
+                if (/^\/files\/?$/.test(this.route.path)) {
+                    return 'documents';
+                }
                 return this.moduleSlug ? 'module-detail' : 'modules';
             },
             moduleSlug: function () {
@@ -356,7 +367,7 @@
                 return Api.get('/api/me').then(function (me) {
                     self.me = me;
                     self.authState = 'authenticated';
-                    if (!/^\/modules(\/|$)/.test(self.route.path)) {
+                    if (!/^\/(modules|files)(\/|$)/.test(self.route.path)) {
                         Router.replace('/modules', {});
                     }
                 }).catch(function (error) {
@@ -435,6 +446,12 @@
                 // Carry the current catalog query so Back restores the same filtered view.
                 Router.push('/modules/' + encodeURIComponent(slug), this.route.query);
             },
+            openFiles: function () {
+                Router.push('/files', {});
+            },
+            goCatalog: function () {
+                Router.push('/modules', {});
+            },
             backToCatalog: function () {
                 Router.back();
             },
@@ -456,10 +473,14 @@
             '   @setup-complete="onSetupComplete" @session-lost="onSessionLost" @restart="restartLogin" />',
             '<MfaChallengeView v-else-if="view === \'mfa-challenge\'"',
             '   @verified="onMfaVerified" @session-lost="onSessionLost" @restart="restartLogin" />',
+            '<DocumentsView v-else-if="view === \'documents\'" :me="me"',
+            '   @go-catalog="goCatalog" @logout="logout" @session-lost="onSessionLost" />',
             '<ModulesView v-else-if="view === \'modules\'" :me="me" :query="route.query"',
-            '   @open-module="openModule" @logout="logout" @session-lost="onSessionLost" />',
+            '   @open-module="openModule" @open-files="openFiles" @logout="logout"',
+            '   @session-lost="onSessionLost" />',
             '<ModuleDetailView v-else :me="me" :slug="moduleSlug"',
-            '   @back="backToCatalog" @logout="logout" @session-lost="onSessionLost" />'
+            '   @back="backToCatalog" @open-files="openFiles" @logout="logout"',
+            '   @session-lost="onSessionLost" />'
         ].join('\n')
     };
 
@@ -511,6 +532,7 @@
     app.component('MfaChallengeView', window.MfaChallengeView);
     app.component('ModulesView', window.ModulesView);
     app.component('ModuleDetailView', window.ModuleDetailView);
+    app.component('DocumentsView', window.DocumentsView);
 
     app.mount('#app');
 }());

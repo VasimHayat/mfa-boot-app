@@ -9,7 +9,7 @@ window.ModulesView = {
         me: { type: Object, default: null },
         query: { type: Object, required: true }
     },
-    emits: ['open-module', 'logout', 'session-lost'],
+    emits: ['open-module', 'open-files', 'logout', 'session-lost'],
     data: function () {
         return {
             summary: null,
@@ -120,13 +120,22 @@ window.ModulesView = {
         },
         menuItems: function () {
             var self = this;
-            return [{
-                label: 'Catalog',
-                icon: 'pi pi-th-large',
-                command: function () {
-                    self.clearFilters();
+            return [
+                {
+                    label: 'Catalog',
+                    icon: 'pi pi-th-large',
+                    command: function () {
+                        self.clearFilters();
+                    }
+                },
+                {
+                    label: 'My files',
+                    icon: 'pi pi-folder',
+                    command: function () {
+                        self.$emit('open-files');
+                    }
                 }
-            }];
+            ];
         }
     },
     watch: {

@@ -10,8 +10,11 @@ import com.example.mfaapp.repo.EnrollmentRepository;
 import com.example.mfaapp.repo.LessonProgressRepository;
 import com.example.mfaapp.repo.MfaSecretRepository;
 import com.example.mfaapp.repo.ModuleRepository;
+import com.example.mfaapp.repo.StoredDocumentRepository;
 import com.example.mfaapp.repo.UserRepository;
+import com.example.mfaapp.service.DocumentService;
 import com.example.mfaapp.service.MfaService;
+import com.example.mfaapp.service.SeaweedFsClient;
 import com.example.mfaapp.service.TotpService;
 import com.example.mfaapp.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,7 +56,13 @@ public abstract class IntegrationTestBase {
     @Autowired
     protected MfaSecretRepository mfaSecrets;
     @Autowired
+    protected StoredDocumentRepository storedDocuments;
+    @Autowired
+    protected SeaweedFsClient seaweedFsClient;
+    @Autowired
     protected UserService userService;
+    @Autowired
+    protected DocumentService documentService;
     @Autowired
     protected MfaService mfaService;
     @Autowired
@@ -75,8 +84,14 @@ public abstract class IntegrationTestBase {
         lessonProgress.deleteAll();
         enrollments.deleteAll();
         mfaSecrets.deleteAll();
+        storedDocuments.deleteAll();
         modules.deleteAll();
         users.deleteAll();
+        objectStore().clear();
+    }
+
+    protected InMemoryObjectStore objectStore() {
+        return (InMemoryObjectStore) seaweedFsClient;
     }
 
     protected User newUser(String username, Role... roles) {

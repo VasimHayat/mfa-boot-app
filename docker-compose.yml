@@ -1,0 +1,40 @@
+# SeaweedFS for local development.
+#
+#   docker compose up -d
+#
+# `weed server` runs the master, one volume server and the filer in a single container, which is
+# plenty for development. The app talks to the filer (8888) over its HTTP API; the master and volume
+# ports are exposed only so you can inspect the cluster.
+#
+# The volume server's default port is 8080, which collides with the app, so it is moved to 8081.
+services:
+  seaweedfs:
+    image: chrislusf/seaweedfs:3.68
+    container_name: mfa-learning-seaweedfs
+    command: >
+      server
+      -dir=/data
+      -master.volumeSizeLimitMB=128
+      -volume.max=10
+      -volume.port=8081
+      -filer
+      -filer.port=8888
+    ports:
+      - "9333:9333"   # master  - cluster status UI/API
+      - "8081:8081"   # volume  - chunk storage
+      - "8888:8888"   # filer   - the path-based HTTP API the app uses
+    volumes:
+      - seaweedfs-data:/data
+    healthcheck:
+      # The filer is the last thing to come up, so it is what "ready" means here.
+      # 127.0.0.1, not localhost: inside the container localhost resolves to ::1 first and
+      # SeaweedFS listens on IPv4 only, so the check would fail against a perfectly healthy filer.
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8888/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  seaweedfs-data:

@@ -1,9 +1,12 @@
 com\example\mfaapp\support\IntegrationTestBase.class
+com\example\mfaapp\SeaweedFsClientIT.class
 com\example\mfaapp\support\IntegrationTestBase$EnrolledMfa.class
+com\example\mfaapp\support\TestClockConfig.class
+com\example\mfaapp\LearningCatalogTest.class
+com\example\mfaapp\support\InMemoryObjectStore.class
+com\example\mfaapp\DocumentUploadTest.class
 com\example\mfaapp\AuthMfaFlowTest.class
 com\example\mfaapp\CatalogQueryBudgetTest.class
-com\example\mfaapp\support\TestClockConfig.class
 com\example\mfaapp\ContextLoadsTest.class
 com\example\mfaapp\support\MutableClock.class
-com\example\mfaapp\LearningCatalogTest.class
 com\example\mfaapp\PreAuthAccessTest.class
